@@ -182,6 +182,25 @@ void inv_print(Inventory I)
 {
     if (I == NULL) return;
 
+    if (I->next == I)
+    {
+        printf("\nLa lista esta vacia\n");
+        return;
+    }
+
+    int cant_productos = 0;
+
+    InventoryElement elemento_actual_cant = I->next;
+
+    while (elemento_actual_cant != I)
+    {
+        cant_productos++;
+        
+        elemento_actual_cant = elemento_actual_cant->next;
+    }
+
+    printf("\nHay %d productos\n", cant_productos);
+
     InventoryElement elemento_actual = I->next;
 
     while (elemento_actual != I)
@@ -198,7 +217,7 @@ void inv_print(Inventory I)
 
 int inv_is_empty(Inventory I)
 {
-    if (I == NULL)
+    if (I == NULL || I->next == I)
     {
         return 1; // Vacio
     }
@@ -231,7 +250,7 @@ int inv_is_last(InventoryElement Position, Inventory I)
 
 Product* inv_find_by_name(char* name, Inventory I)
 {
-    if (I == NULL || name == NULL)
+    if (I == NULL || name == NULL || I->next == I)
     {
         return NULL;
     }
@@ -265,17 +284,10 @@ Product* inv_find_by_name(char* name, Inventory I)
             return &busqueda_izq->product;
         }
 
-        /*Detener si es impar*/
-        if (busqueda_der == busqueda_izq)
+        /*Detener si es impar o par*/
+        if (busqueda_der == busqueda_izq || busqueda_der->prev == busqueda_izq)
         {
-            printf("Elemento no encontrado");
-            return NULL;
-        }
-        
-        /*Detener si es par*/
-        if (busqueda_der->prev == busqueda_izq)
-        {
-            printf("Elemento no encontrado");
+            printf("\nElemento no encontrado\n");
             return NULL;
         }
 
