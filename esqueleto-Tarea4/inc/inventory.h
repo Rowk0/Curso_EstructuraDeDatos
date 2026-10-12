@@ -57,6 +57,11 @@ struct Node
  * o falta de memoria) se imprime "Error", el inventario queda intacto y el
  * producto sigue siendo responsabilidad de quien llama. La posición puede ser
  * la cabecera.
+ * 
+ * @param P Producto a insertar
+ * @param I Inventario para insertar el producto
+ * @param Position Posicion del inventario, en la posicion siguiente se inserta el elemento
+ * @return Inventory Devuelve el inventario actualizado
  */
 Inventory inv_insert(Product P, Inventory I, InventoryElement Position);
 
@@ -65,6 +70,10 @@ Inventory inv_insert(Product P, Inventory I, InventoryElement Position);
  *
  * Equivale a insertar justo después de la cabecera. Aplican las mismas
  * condiciones de error que inv_insert.
+ * 
+ * @param P Producto a insertar
+ * @param I Inventario para insertar el producto
+ * @return Inventory Devuelve el inventario actualizado
  */
 Inventory inv_insert_first(Product P, Inventory I);
 
@@ -73,6 +82,10 @@ Inventory inv_insert_first(Product P, Inventory I);
  *
  * Equivale a insertar justo después del último elemento. Aplican las mismas
  * condiciones de error que inv_insert.
+ * 
+ * @param P Producto a insertar
+ * @param I Inventario para insertar el producto
+ * @return Inventory Devuelve el inventario actualizado
  */
 Inventory inv_insert_last(Product P, Inventory I);
 
@@ -82,6 +95,10 @@ Inventory inv_insert_last(Product P, Inventory I);
  * Se libera la memoria del producto y del nodo. La cabecera del inventario no
  * contiene un producto real, por lo que no se puede eliminar con esta
  * función: se imprime "Error" y no se hace nada.
+ * 
+ * @param Position Posicion del producto del inventario que se quiere eliminar
+ * @param I Inventario para eliminar el producto
+ * @return Inventory Devuelve el inventario actualizado
  */
 Inventory inv_delete(InventoryElement Position, Inventory I);
 
@@ -91,6 +108,10 @@ Inventory inv_delete(InventoryElement Position, Inventory I);
  * Se retorna un puntero al producto que está dentro del nodo, no una copia.
  * La cabecera del inventario no contiene un producto real, por lo que no se
  * puede consultar: se imprime "Error" y se retorna un puntero nulo.
+ * 
+ * @param Position Posicion del producto que se quiere retornar 
+ * @param I Inventario donde se busca el producto
+ * @return Product* devuelve el producto encontrado en la posicion indicada 
  */
 Product* inv_retrieve(InventoryElement Position, Inventory I);
 
@@ -100,6 +121,9 @@ Product* inv_retrieve(InventoryElement Position, Inventory I);
 
 /**
  * @brief Devuelve la cabecera del inventario
+ * 
+ * @param I Puntero al nodo centinela del inventario
+ * @return InventoryElement Retorna la posicion de la cabecera
  */
 InventoryElement inv_header(Inventory I);
 
@@ -107,6 +131,9 @@ InventoryElement inv_header(Inventory I);
  * @brief Devuelve el primer elemento del inventario
  *
  * Si el inventario está vacío se retorna la cabecera.
+ * 
+ * @param I Inventario 
+ * @return InventoryElement Retorna el primer producto del inventario
  */
 InventoryElement inv_first(Inventory I);
 
@@ -114,16 +141,25 @@ InventoryElement inv_first(Inventory I);
  * @brief Devuelve el último elemento del inventario
  *
  * Si el inventario está vacío se retorna la cabecera.
+ * 
+ * @param I Inventario
+ * @return InventoryElement Retorna el ultimo elemento del inventario 
  */
 InventoryElement inv_last(Inventory I);
 
 /**
  * @brief Devuelve el elemento siguiente del inventario
+ * 
+ * @param Position Posicion del elemento siguiente de la cabecera
+ * @return InventoryElement Devuelve el elemento del inventario elegido
  */
 InventoryElement inv_forward(InventoryElement Position);
 
 /**
  * @brief Devuelve el elemento anterior del inventario
+ * 
+ * @param Position Posicion del elemento anterior de la cabecera 
+ * @return InventoryElement Devuelve el elemento del inventario elegido
  */
 InventoryElement inv_backward(InventoryElement Position);
 
@@ -136,6 +172,8 @@ InventoryElement inv_backward(InventoryElement Position);
  *
  * Se libera toda la memoria del inventario. Después de llamarla, I deja de
  * ser válido.
+ * 
+ * @param I Inventario a destruir
  */
 void inv_destroy(Inventory I);
 
@@ -150,6 +188,9 @@ void inv_destroy(Inventory I);
  * anterior queda inválida, por lo que se debe usar siempre el valor retornado.
  * Si I no está inicializado (ni es NULL ni apunta a un inventario válido) el
  * comportamiento es indefinido.
+ * 
+ * @param I Inventario a crear o vaciar
+ * @return Inventory Devuelve el inventario vacio o solamente la cabecera
  */
 Inventory inv_make_empty(Inventory I);
 
@@ -159,6 +200,8 @@ Inventory inv_make_empty(Inventory I);
  * Si I es NULL no se imprime nada. Si el inventario está vacío se indica que
  * está vacío. En otro caso se muestra la cantidad de productos que contiene y
  * luego cada uno de ellos, en orden, usando prod_print.
+ * 
+ * @param I Inventario a imprimir
  */
 void inv_print(Inventory I);
 
@@ -171,6 +214,9 @@ void inv_print(Inventory I);
  *
  * Retorna 1 si el inventario está vacío y 0 en caso contrario. Un inventario
  * NULL se considera vacío.
+ * 
+ * @param I Inventario a revisar si esta vacio 
+ * @return int Devuelve 1 si esta vacio o 0 si contiene algun elemento
  */
 int inv_is_empty(Inventory I);
 
@@ -179,6 +225,10 @@ int inv_is_empty(Inventory I);
  *
  * Retorna 1 si el elemento es el último y 0 en caso contrario. Si el
  * inventario es NULL retorna 0.
+ * 
+ * @param Position Posicion del inventario a verificar si es el ultimo del inventario 
+ * @param I Inventario a revisar
+ * @return int Devuelve 1 si la posicion del elemento es el ultimo o 0 si no lo es
  */
 int inv_is_last(InventoryElement Position, Inventory I);
 
@@ -205,6 +255,10 @@ int inv_is_last(InventoryElement Position, Inventory I);
  * se encontró y qué puntero lo encontró (el de avance, el de retroceso, o
  * ambos si estaban sobre el elemento central). Cuando no se encuentra, se
  * imprime un aviso indicando el nombre buscado.
+ * 
+ * @param name Nombre del producto a buscar 
+ * @param I Inventario para buscar el nombre del producto
+ * @return Product* Devuelve el producto con todos sus campos
  */
 Product* inv_find_by_name(char* name, Inventory I);
 

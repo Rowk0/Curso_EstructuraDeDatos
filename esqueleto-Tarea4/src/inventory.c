@@ -10,6 +10,12 @@
 
 Inventory inv_insert(Product P, Inventory I, InventoryElement Position) 
 {
+    if (I == NULL || P.name == NULL || P.provider == NULL || Position == NULL)
+    {
+        printf("ERROR");
+        return I;
+    }
+
     InventoryElement aux = malloc(sizeof(struct Node));
 
     if (aux == NULL)
@@ -23,7 +29,6 @@ Inventory inv_insert(Product P, Inventory I, InventoryElement Position)
     aux->prev = Position;
 
     Position->next = aux;
-    
     aux->next->prev = aux;
 
     return I;
@@ -31,6 +36,12 @@ Inventory inv_insert(Product P, Inventory I, InventoryElement Position)
 
 Inventory inv_insert_first(Product P, Inventory I)
 {
+    if (I == NULL || P.name == NULL || P.provider == NULL)
+    {
+        printf("ERROR");
+        return I;
+    }
+
     InventoryElement aux = malloc(sizeof(struct Node));
 
     if (aux == NULL)
@@ -52,6 +63,12 @@ Inventory inv_insert_first(Product P, Inventory I)
 
 Inventory inv_insert_last(Product P, Inventory I)
 {
+    if (I == NULL || P.name == NULL || P.provider == NULL)
+    {
+        printf("ERROR");
+        return I;
+    }
+
     InventoryElement aux = malloc(sizeof(struct Node));
 
     if (aux == NULL)
@@ -153,7 +170,7 @@ void inv_destroy(Inventory I)
 
 Inventory inv_make_empty(Inventory I)
 {
-    if (I == NULL) printf("La lista no está vacia");
+    if (I != NULL) inv_destroy(I);
 
     I = malloc(sizeof(struct Node));
     I->next = I;
@@ -251,12 +268,14 @@ Product* inv_find_by_name(char* name, Inventory I)
         /*Detener si es impar*/
         if (busqueda_der == busqueda_izq)
         {
+            printf("Elemento no encontrado");
             return NULL;
         }
         
         /*Detener si es par*/
         if (busqueda_der->prev == busqueda_izq)
         {
+            printf("Elemento no encontrado");
             return NULL;
         }
 
