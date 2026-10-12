@@ -4,93 +4,124 @@
 */
 #include "inventory.h"
 
-
 //==============================================================================
 //        FUNCIONES RELACIONADAS CON LOS PRODUCTOS DEL INVENTARIO
 //==============================================================================
 
-/**
- * @brief Inserta un producto en el inventario, justo después de una posición
- *
- * El inventario pasa a ser el dueño de los strings del producto. Si la
- * inserción falla (producto inválido, es decir, con name o provider en NULL,
- * o falta de memoria) se imprime "Error", el inventario queda intacto y el
- * producto sigue siendo responsabilidad de quien llama. La posición puede ser
- * la cabecera.
- */
-Inventory inv_insert(Product P, Inventory I, InventoryElement Position)
+Inventory inv_insert(Product P, Inventory I, InventoryElement Position) 
 {
     InventoryElement aux = malloc(sizeof(struct Node));
 
+    if (aux == NULL)
+    {
+        printf("Error");
+        return I;
+    }
+    
+    aux->product = P;
     aux->next = Position->next;
     aux->prev = Position;
+
     Position->next = aux;
+    
     aux->next->prev = aux;
+
+    return I;
 }
 
-//REVISAR
+Inventory inv_insert_first(Product P, Inventory I)
+{
+    InventoryElement aux = malloc(sizeof(struct Node));
 
-/**
- * @brief Elimina del inventario el producto que se encuentra en una posición
- *
- * Se libera la memoria del producto y del nodo. La cabecera del inventario no
- * contiene un producto real, por lo que no se puede eliminar con esta
- * función: se imprime "Error" y no se hace nada.
- */
+    if (aux == NULL)
+    {
+        printf("Error");
+        return I;
+    }
+
+    aux->product = P;
+    aux->next = I->next;
+    aux->prev = I;
+
+    I->next = aux;
+    
+    aux->next->prev = aux;
+
+    return I;
+}
+
+Inventory inv_insert_last(Product P, Inventory I)
+{
+    InventoryElement aux = malloc(sizeof(struct Node));
+
+    if (aux == NULL)
+    {
+        printf("Error");
+        return I;
+    }
+
+    aux->product = P;
+    aux->next = I;
+    aux->prev = I->prev;
+
+    I->prev->next = aux;
+    I->prev = aux;
+
+    return I;
+}
+
 Inventory inv_delete(InventoryElement Position, Inventory I)
 {
+    if (Position == I || Position == NULL)
+    {
+        printf("Error");
+        return I;
+    }
+
     prod_delete(Position->product);
 
     Position->prev->next = Position->next;
     Position->next->prev = Position->prev;
     free(Position);
+
+    return I;
 }
 
-//REVISAR
+Product* inv_retrieve(InventoryElement Position, Inventory I)
+{
+    if (Position == I || Position == NULL)
+    {
+        printf("Error");
+        return NULL;
+    }
+
+    return &Position->product;
+}
 
 //==============================================================================
 //        FUNCIONES RELACIONADAS CON LOS ÍNDICES DEL INVENTARIO
 //==============================================================================
 
-/**
- * @brief Devuelve la cabecera del inventario
- */
 InventoryElement inv_header(Inventory I)
 {
     return I;
 }
 
-/**
- * @brief Devuelve el primer elemento del inventario
- *
- * Si el inventario está vacío se retorna la cabecera.
- */
 InventoryElement inv_first(Inventory I)
 {
     return inv_forward(I);
 }
 
-/**
- * @brief Devuelve el último elemento del inventario
- *
- * Si el inventario está vacío se retorna la cabecera.
- */
 InventoryElement inv_last(Inventory I)
 {
     return inv_backward(I);
 }
 
-/**
- * @brief Devuelve el elemento siguiente del inventario
- */
 InventoryElement inv_forward(InventoryElement Position)
 {
     return Position->next;
 }
 
-/**
- * @brief Devuelve el elemento anterior del inventario
- */
 InventoryElement inv_backward(InventoryElement Position)
 {
     return Position->prev;
@@ -100,18 +131,26 @@ InventoryElement inv_backward(InventoryElement Position)
 //        FUNCIONES RELACIONADAS CON LA TOTALIDAD DEL INVENTARIO
 //==============================================================================
 
-/**
- * @brief Crea un inventario vacío o vacía uno ya existente
- *
- * Si no hay memoria disponible se imprime "Error" y se retorna un puntero
- * nulo.
- *
- * @warning Si I no es NULL, el inventario se destruye (se libera I y todos sus
- * elementos) y se crea uno nuevo. Cualquier otra referencia al inventario
- * anterior queda inválida, por lo que se debe usar siempre el valor retornado.
- * Si I no está inicializado (ni es NULL ni apunta a un inventario válido) el
- * comportamiento es indefinido.
- */
+void inv_destroy(Inventory I)
+{
+    if (I == NULL) return;
+
+    InventoryElement elemento_actual = I->next;
+    
+    while (elemento_actual != I)
+    {
+        InventoryElement nodo_siguiente = elemento_actual->next;
+
+        prod_delete(elemento_actual->product);
+
+        free(elemento_actual);
+
+        elemento_actual = nodo_siguiente;
+    }
+
+    free(I);
+}
+
 Inventory inv_make_empty(Inventory I)
 {
     if (I == NULL) printf("La lista no está vacia");
@@ -122,11 +161,106 @@ Inventory inv_make_empty(Inventory I)
     return I;
 }
 
+void inv_print(Inventory I)
+{
+    if (I == NULL) return;
+
+    InventoryElement elemento_actual = I->next;
+
+    while (elemento_actual != I)
+    {
+        prod_print(elemento_actual->product);
+        
+        elemento_actual = elemento_actual->next;
+    }
+}
+
 //==============================================================================
 //        FUNCIONES DE COMPROBACIÓN DE ESTADO
 //==============================================================================
 
+int inv_is_empty(Inventory I)
+{
+    if (I == NULL)
+    {
+        return 1; // Vacio
+    }
+    else
+    {
+        return 0; // Con elementos
+    }
+}
+
+int inv_is_last(InventoryElement Position, Inventory I)
+{
+    if (I == NULL)
+    {
+        return 0;
+    }
+    
+    if (Position == I->prev)
+    {
+        return 1; // El elemento es el ultimo
+    }
+    else
+    {
+        return 0;
+    }
+}
 
 //==============================================================================
 //        FUNCIONES DE BUSQUEDA
 //==============================================================================
+
+Product* inv_find_by_name(char* name, Inventory I)
+{
+    if (I == NULL || name == NULL)
+    {
+        return NULL;
+    }
+
+    InventoryElement busqueda_der = I->next;
+    InventoryElement busqueda_izq = I->prev;
+    int iteraciones = 0;
+
+    while (1)
+    {
+        iteraciones++;
+
+        /*Se comprueba si ambos encontraron el mismo elemento*/
+        if ((strcmp(name, busqueda_der->product.name) == 0) && strcmp(name, busqueda_izq->product.name) == 0)
+        {
+            printf("\nSe encontro el elemento en %d iteraciones, por ambos punteros\n", iteraciones);
+            return &busqueda_der->product; //Puede retornar busqueda_izq, da lo mismo
+        }
+
+        /*Derecha*/
+        if (strcmp(name, busqueda_der->product.name) == 0)
+        {
+            printf("\nSe encontro el elemento en %d iteraciones, por el puntero de avance\n", iteraciones);
+            return &busqueda_der->product;
+        }
+
+        /*Izquierda*/
+        if (strcmp(name, busqueda_izq->product.name) == 0)
+        {
+            printf("\nSe encontró el elemento en %d iteraciones, por el puntero de retroceso\n", iteraciones);
+            return &busqueda_izq->product;
+        }
+
+        /*Detener si es impar*/
+        if (busqueda_der == busqueda_izq)
+        {
+            return NULL;
+        }
+        
+        /*Detener si es par*/
+        if (busqueda_der->prev == busqueda_izq)
+        {
+            return NULL;
+        }
+
+        busqueda_der = busqueda_der->next;
+        busqueda_izq = busqueda_izq->prev;
+    }
+}
